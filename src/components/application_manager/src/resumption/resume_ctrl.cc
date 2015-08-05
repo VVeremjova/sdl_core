@@ -79,8 +79,9 @@ void ResumeCtrl::set_resumption_storage(
 bool ResumeCtrl::Init(resumption::LastState& last_state) {
   bool use_db = application_manager_.get_settings().use_db_for_resumption();
   if (use_db) {
-    resumption_storage_.reset(
-        new ResumptionDataDB(application_manager_.get_settings()));
+    resumption_storage_.reset(new ResumptionDataDB(
+								In_File_Storage,
+                                application_manager_.get_settings()));
     if (!resumption_storage_->Init()) {
       return false;
     }
