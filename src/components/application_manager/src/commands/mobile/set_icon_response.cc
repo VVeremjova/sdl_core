@@ -38,8 +38,9 @@ namespace application_manager {
 
 namespace commands {
 
-SetIconResponse::SetIconResponse(const MessageSharedPtr& message)
-    : CommandResponseImpl(message) {
+SetIconResponse::SetIconResponse(const MessageSharedPtr& message,
+                                 ApplicationManager& app_man)
+    : CommandResponseImpl(message, app_man) {
 }
 
 SetIconResponse::~SetIconResponse() {
@@ -48,7 +49,7 @@ SetIconResponse::~SetIconResponse() {
 void SetIconResponse::Run() {
   LOG4CXX_AUTO_TRACE(logger_);
 
-  ApplicationManagerImpl::instance()->SendMessageToMobile(message_);
+  application_manager_.SendMessageToMobile(message_);
 }
 
 }  // namespace commands

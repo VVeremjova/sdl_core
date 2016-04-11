@@ -43,8 +43,8 @@ namespace application_manager {
 
 namespace commands {
 
-SetIconRequest::SetIconRequest(const MessageSharedPtr& message)
-    : CommandRequestImpl(message) {
+SetIconRequest::SetIconRequest(const MessageSharedPtr& message, ApplicationManager& application_manager)
+    : CommandRequestImpl(message, application_manager) {
 }
 
 SetIconRequest::~SetIconRequest() {
@@ -54,7 +54,7 @@ void SetIconRequest::Run() {
   LOG4CXX_AUTO_TRACE(logger_);
 
   ApplicationSharedPtr app =
-      ApplicationManagerImpl::instance()->application(connection_key());
+      application_manager_.application(connection_key());
 
   if (!app) {
     LOG4CXX_ERROR(logger_, "Application is not registered");
@@ -66,7 +66,7 @@ void SetIconRequest::Run() {
       (*message_)[strings::msg_params][strings::sync_file_name].asString();
 
   std::string full_file_path =
-      profile::Profile::instance()->app_storage_folder() + "/";
+      application_manager_.get_settings().app_storage_folder() + "/";
   full_file_path += app->folder_name();
   full_file_path += "/";
   full_file_path += sync_file_name;
@@ -115,7 +115,7 @@ void SetIconRequest::on_event(const event_engine::Event& event) {
 
       if (result) {
         ApplicationSharedPtr app =
-            ApplicationManagerImpl::instance()->application(connection_key());
+            application_manager_.application(connection_key());
 
         const std::string path = (*message_)[strings::msg_params]
                                             [strings::sync_file_name]

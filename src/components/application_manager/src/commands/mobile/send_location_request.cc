@@ -31,15 +31,15 @@
  POSSIBILITY OF SUCH DAMAGE.
  */
 #include "application_manager/commands/mobile/send_location_request.h"
-#include "application_manager/application_manager_impl.h"
+
 #include "application_manager/message_helper.h"
 
 namespace application_manager {
 
 namespace commands {
 
-SendLocationRequest::SendLocationRequest(const MessageSharedPtr& message)
- : CommandRequestImpl(message) {
+SendLocationRequest::SendLocationRequest(const MessageSharedPtr& message, ApplicationManager& application_manager)
+ : CommandRequestImpl(message, application_manager) {
 }
 
 SendLocationRequest::~SendLocationRequest() {
@@ -49,8 +49,7 @@ void SendLocationRequest::Run() {
   using namespace hmi_apis;
   LOG4CXX_AUTO_TRACE(logger_);
 
-  ApplicationSharedPtr app = application_manager::ApplicationManagerImpl::instance()
-      ->application(connection_key());
+  ApplicationSharedPtr app = application_manager_.application(connection_key());
 
   if (!app) {
     LOG4CXX_ERROR(logger_,
@@ -91,7 +90,7 @@ void SendLocationRequest::Run() {
     mobile_apis::Result::eType verification_result =
         mobile_apis::Result::SUCCESS;
     verification_result = MessageHelper::VerifyImage(
-        (*message_)[strings::msg_params][strings::location_image], app);
+        (*message_)[strings::msg_params][strings::location_image], app, application_manager_);
     if (mobile_apis::Result::SUCCESS != verification_result) {
       LOG4CXX_ERROR(logger_, "VerifyImage INVALID_DATA!");
       SendResponse(false, verification_result);
@@ -192,15 +191,14 @@ bool SendLocationRequest::IsWhiteSpaceExist() {
 }
 
 bool SendLocationRequest::CheckHMICapabilities(std::list<hmi_apis::Common_TextFieldName::eType>& fields_names) {
+  LOG4CXX_AUTO_TRACE(logger_);  
   using namespace smart_objects;
   using namespace hmi_apis;
-
   if (fields_names.empty()) {
     return true;
   }
 
-  ApplicationManagerImpl* instance = ApplicationManagerImpl::instance();
-  const HMICapabilities& hmi_capabilities = instance->hmi_capabilities();
+  const HMICapabilities& hmi_capabilities = application_manager_.hmi_capabilities();
   if (!hmi_capabilities.is_ui_cooperating()) {
     LOG4CXX_ERROR(logger_, "UI is not supported.");
     return false;
