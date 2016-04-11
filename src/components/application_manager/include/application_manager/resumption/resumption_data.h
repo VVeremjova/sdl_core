@@ -36,6 +36,10 @@
 #include "smart_objects/smart_object.h"
 #include "application_manager/application.h"
 
+namespace application_manager {
+    class ApplicationManagerSettings;
+}
+
 namespace resumption {
 
 namespace smart_objects = NsSmartDeviceLink::NsSmartObjects;
@@ -52,7 +56,8 @@ class ResumptionData {
   /**
    * @brief Constructor of ResumptionData
    */
-  ResumptionData();
+  ResumptionData(
+      const application_manager::ApplicationManagerSettings& settings);
 
   /**
    * @brief Destructor of ResumptionData
@@ -202,6 +207,7 @@ class ResumptionData {
    */
   virtual void Persist() = 0;
  protected:
+
   /**
    * @brief Retrieves of commands from application
    * @param application contains application of which selection commands
@@ -279,8 +285,8 @@ class ResumptionData {
       ++first;
     }
   }
-
-  mutable sync_primitives::Lock resumption_lock_;
+  mutable sync_primitives::Lock           resumption_lock_;
+  const application_manager::ApplicationManagerSettings& settings_;
 };
 }  // namespace resumption
 

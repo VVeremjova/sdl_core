@@ -48,7 +48,8 @@ class ResumptionDataJson : public ResumptionData {
   /**
    * @brief Constructor of ResumptionDataJson
    */
-  ResumptionDataJson(LastState& last_state);
+  ResumptionDataJson(LastState& last_state,
+                     const application_manager::ApplicationManagerSettings& settings);
 
   /**
    * @brief allows to destroy ResumptionDataJson object

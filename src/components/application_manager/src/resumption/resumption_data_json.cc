@@ -36,7 +36,7 @@
 #include "formatters/CFormatterJsonBase.h"
 #include "application_manager/message_helper.h"
 #include "application_manager/smart_object_keys.h"
-#include "config_profile/profile.h"
+#include "application_manager/application_manager_settings.h"
 
 namespace resumption {
 
@@ -44,8 +44,10 @@ namespace Formatters = NsSmartDeviceLink::NsJSONHandler::Formatters;
 
 CREATE_LOGGERPTR_GLOBAL(logger_, "Resumption")
 
-ResumptionDataJson::ResumptionDataJson(LastState& last_state)
-    : ResumptionData(), last_state_(last_state) {}
+ResumptionDataJson::ResumptionDataJson(
+    LastState& last_state,
+    const application_manager::ApplicationManagerSettings& settings)
+    : ResumptionData(settings), last_state_(last_state) {}
 
 void ResumptionDataJson::SaveApplication(
     app_mngr::ApplicationSharedPtr application) {
@@ -53,7 +55,7 @@ void ResumptionDataJson::SaveApplication(
   LOG4CXX_AUTO_TRACE(logger_);
   DCHECK_OR_RETURN_VOID(application);
 
-  const std::string& policy_app_id = application->mobile_app_id();
+  const std::string& policy_app_id = application->policy_app_id();
   LOG4CXX_DEBUG(logger_,
                 "app_id : " << application->app_id() << " policy_app_id : "
                             << policy_app_id);
@@ -179,7 +181,6 @@ uint32_t ResumptionDataJson::GetHMIApplicationID(
 
 void ResumptionDataJson::OnSuspend() {
   using namespace app_mngr;
-  using namespace profile;
   LOG4CXX_AUTO_TRACE(logger_);
   sync_primitives::AutoLock autolock(resumption_lock_);
   Json::Value to_save;
