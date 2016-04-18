@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, Ford Motor Company
+ * Copyright (c) 2016, Ford Motor Company
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -39,9 +39,8 @@
 #include "sql_query.h"
 #include "utils/make_shared.h"
 #include "utils/file_system.h"
+#include "application_manager/resumption_data_test.h"
 #include "application_manager/test_resumption_data_db.h"
-#include "resumption_data_test.h"
-
 
 #include "application_manager/resumption/resumption_sql_queries.h"
 #include "application_manager/resumption/resumption_data_db.h"
@@ -51,7 +50,6 @@ namespace components {
 namespace resumption_test {
 
 using ::testing::NiceMock;
-using ::testing::ReturnRef;
 using application_manager_test::MockApplication;
 
 namespace am = application_manager;
@@ -73,7 +71,6 @@ class ResumptionDataDBTest : public ResumptionDataTest {
     ign_off_count_ = 0;
     grammar_id_ = 16;
   }
-
   virtual void TearDown() {
     utils::dbms::SQLQuery query(test_db());
     EXPECT_TRUE(query.Prepare(remove_all_tables));
@@ -82,12 +79,16 @@ class ResumptionDataDBTest : public ResumptionDataTest {
 
   static void SetUpTestCase() {
     kDatabaseName = "resumption";
-    path_ = "test_storage";
-    CreateDirectory("./" + path_);
-    ON_CALL(mock_application_manager_settings_, app_storage_folder()).WillByDefault(ReturnRef(path_));
-    test_db_ = new utils::dbms::SQLDatabase(kDatabaseName);
-    test_db_->set_path(path_ + "/");
-    res_db_ = new TestResumptionDataDB(mock_application_manager_settings_);
+    if (is_in_file) {
+      path_ = "test_storage";
+      CreateDirectory("./" + path_);
+      test_db_ = new utils::dbms::SQLDatabase(kDatabaseName);
+      test_db_->set_path(path_ + "/");
+      res_db_ = new TestResumptionDataDB(In_File_Storage);
+    } else {
+      res_db_ = new TestResumptionDataDB(In_Memory_Storage);
+      test_db_ = res_db_->get_db_handle();
+    }
 
     EXPECT_TRUE(test_db_->Open());
     EXPECT_TRUE(test_db_->IsReadWrite());
@@ -105,20 +106,19 @@ class ResumptionDataDBTest : public ResumptionDataTest {
     delete res_db_;
   }
 
-  utils::dbms::SQLDatabase* test_db() const {
+  utils::dbms::SQLDatabase* test_db() {
     return test_db_;
   }
-
-  std::string path() const {
+  std::string path() {
     return path_;
   }
 
   void SetZeroIgnOffTime() {
-      utils::dbms::SQLQuery query(test_db());
-      EXPECT_TRUE(query.Prepare(KUpdateLastIgnOffTime));
-      query.Bind(0, 0);
-      EXPECT_TRUE(query.Exec());
-    }
+    utils::dbms::SQLQuery query(test_db());
+    EXPECT_TRUE(query.Prepare(KUpdateLastIgnOffTime));
+    query.Bind(0, 0);
+    EXPECT_TRUE(query.Exec());
+  }
 
   static TestResumptionDataDB* res_db_;
 
@@ -295,7 +295,6 @@ void ResumptionDataDBTest::CheckGlobalProportiesData() {
     CheckVRHelpItem(global_properties_key);
   }
 }
-
 void ResumptionDataDBTest::CheckVRHelpItem(int64_t global_properties_key) {
   utils::dbms::SQLQuery checks_vrhelp_item(test_db());
   EXPECT_TRUE(checks_vrhelp_item.Prepare(kChecksVrHelpItem));

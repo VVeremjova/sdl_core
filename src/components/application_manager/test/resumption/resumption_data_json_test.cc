@@ -36,13 +36,13 @@
 
 #include "application_manager/usage_statistics.h"
 #include "application_manager/mock_application.h"
-#include "include/resumption_data_mock.h"
+#include "application_manager/mock_resumption_data.h"
 #include "interfaces/MOBILE_API.h"
 #include "resumption/last_state.h"
 
-#include "resumption_data_test.h"
+#include "application_manager/resumption_data_test.h"
 #include "formatters/CFormatterJsonBase.h"
-#include "config_profile/profile.h"
+
 #include "utils/file_system.h"
 
 #include "application_manager/resumption/resumption_data_json.h"
@@ -105,8 +105,7 @@ class ResumptionDataJsonTest : public ResumptionDataTest {
 
   resumption::LastState last_state_;
   ResumptionDataJson res_json;
-  application_manager_test::MockApplicationManagerSettings mock_application_manager_settings_;
-  std::string policy_app_id_;
+
 };
 
 TEST_F(ResumptionDataJsonTest, SaveApplication) {
