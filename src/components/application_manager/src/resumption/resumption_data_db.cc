@@ -50,15 +50,23 @@ namespace resumption {
 CREATE_LOGGERPTR_GLOBAL(logger_, "Resumption")
 
 ResumptionDataDB::ResumptionDataDB(
-    const application_manager::ApplicationManagerSettings& application_manager_settings)
-    : ResumptionData(application_manager_settings_)
-    , db_(new utils::dbms::SQLDatabase(kDatabaseName)) {
+    DbStorage db_storage,
+	const application_manager::ApplicationManagerSettings& settings)
+    : ResumptionData(settings) {
+  if (db_storage == In_File_Storage) {
+    db_ = new utils::dbms::SQLDatabase(kDatabaseName);
 #ifndef __QNX__
   std::string path = application_manager_settings_.app_storage_folder();
   if (!path.empty()) {
     db_->set_path(path + "/");
   }
+  } else if (db_storage == In_Memory_Storage) {
+    db_ = new utils::dbms::SQLDatabase();
 #endif  // __QNX__
+  } else {
+    LOG4CXX_AUTO_TRACE(logger_);
+    LOG4CXX_ERROR(logger_, "Get not existed type of database storage");
+  }
 }
 
 ResumptionDataDB::~ResumptionDataDB() {
@@ -189,43 +197,10 @@ void ResumptionDataDB::SaveApplication(
   WriteDb();
 }
 
-int32_t ResumptionDataDB::GetStoredHMILevel(
-    const std::string& policy_app_id, const std::string& device_id) const {
-  LOG4CXX_AUTO_TRACE(logger_);
-
-  int hmi_level;
-  if (SelectHMILevel(policy_app_id, device_id, hmi_level)) {
-    LOG4CXX_INFO(logger_,
-                 "Application with policy application id  = "
-                     << policy_app_id << " and device id = " << device_id
-                     << "has hmi level = " << hmi_level);
-    return hmi_level;
-  }
-  LOG4CXX_FATAL(logger_, "HMI level doesn't exists in saved data");
-  return -1;
-}
-
 bool ResumptionDataDB::IsHMIApplicationIdExist(uint32_t hmi_app_id) const {
   LOG4CXX_AUTO_TRACE(logger_);
 
   return CheckExistenceHMIId(hmi_app_id);
-}
-
-bool ResumptionDataDB::CheckSavedApplication(const std::string& policy_app_id,
-                                             const std::string& device_id) {
-  LOG4CXX_AUTO_TRACE(logger_);
-  bool application_exist = false;
-  if (!CheckExistenceApplication(policy_app_id, device_id, application_exist) ||
-      !application_exist) {
-    LOG4CXX_WARN(logger_,
-                 "Problem with access to DB or application does not exist");
-    return false;
-  }
-  LOG4CXX_INFO(logger_,
-               "Application with policy_app_id = "
-                   << policy_app_id << " and device_id = " << device_id
-                   << " does exist");
-  return true;
 }
 
 uint32_t ResumptionDataDB::GetHMIApplicationID(

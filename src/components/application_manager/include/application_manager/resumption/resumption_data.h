@@ -170,6 +170,11 @@ class ResumptionData {
                               mobile_apis::HMILevel::eType hmi_level) = 0;
 
   /**
+   * @brief Init storage
+   */
+  virtual bool Init() = 0;
+
+  /**
    * @brief Drops data related to applicaton data resumption
    * @param device_id Device ID
    * @param app_id Application ID
