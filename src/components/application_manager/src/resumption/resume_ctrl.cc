@@ -269,9 +269,9 @@ void ResumeCtrl::OnSuspend() {
 }
 
 void ResumeCtrl::OnAwake() {
-  return resumption_storage_->OnAwake();
   ResetLaunchTime();
   StartSavePersistentDataTimer();
+  return resumption_storage_->OnAwake();
 }
 
 void ResumeCtrl::StartSavePersistentDataTimer() {
@@ -392,11 +392,15 @@ bool ResumeCtrl::CheckPersistenceFilesForResumption(
       device_mac,
       saved_app);
   if (result) {
-    if (!CheckIcons(application, saved_app[strings::application_commands])) {
-      return false;
+    if (saved_app.keyExists(strings::application_commands)) {
+      if (!CheckIcons(application, saved_app[strings::application_commands])) {
+        return false;
+      }
     }
-    if (!CheckIcons(application, saved_app[strings::application_choice_sets])) {
-      return false;
+    if (saved_app.keyExists(strings::application_choice_sets)) {
+      if (!CheckIcons(application, saved_app[strings::application_choice_sets])) {
+        return false;
+      }
     }
   }
   return true;

@@ -229,6 +229,11 @@ class ResumptionDataDB : public ResumptionData {
 
   bool DropAppDataResumption(const std::string& device_id,
                              const std::string& app_id) OVERRIDE;
+  /**
+   * @brief Write json resumption info to file system
+   */
+  void Persist() OVERRIDE;
+
 protected:
   /**
    * @brief returns pointer to data base
