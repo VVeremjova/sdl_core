@@ -772,6 +772,7 @@ class Application : public virtual InitialApplicationData,
    * @return free app space.
    */
   virtual uint32_t GetAvailableDiskSpace() = 0;
+  virtual bool IsAppSubscribedForWayPoints(const uint32_t app_id) const = 0;
 
  protected:
   mutable sync_primitives::Lock hmi_states_lock_;

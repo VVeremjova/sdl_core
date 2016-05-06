@@ -295,6 +295,8 @@ class ApplicationImpl : public virtual InitialApplicationDataImpl,
    */
   uint32_t GetAvailableDiskSpace() OVERRIDE;
 
+  virtual bool IsAppSubscribedForWayPoints(const uint32_t app_id) const OVERRIDE;
+
  protected:
   /**
    * @brief Clean up application folder. Persistent files will stay
