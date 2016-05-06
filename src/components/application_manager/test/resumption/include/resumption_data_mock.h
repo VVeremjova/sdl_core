@@ -46,7 +46,7 @@ namespace smart_objects = NsSmartDeviceLink::NsSmartObjects;
 
 class MockResumptionData : public ::resumption::ResumptionData {
  public:
-  MockResumptionData(const application_manager_test::MockApplicationManager&
+  MockResumptionData(const application_manager_test::MockApplicationManagerSettings&
                          application_manager)
       : ResumptionData(application_manager) {}
   MOCK_METHOD1(SaveApplication,

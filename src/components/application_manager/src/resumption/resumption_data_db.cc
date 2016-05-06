@@ -50,11 +50,11 @@ namespace resumption {
 CREATE_LOGGERPTR_GLOBAL(logger_, "Resumption")
 
 ResumptionDataDB::ResumptionDataDB(
-    const application_manager::ApplicationManager& application_manager)
-    : ResumptionData(application_manager)
+    const application_manager::ApplicationManagerSettings& application_manager_settings)
+    : ResumptionData(application_manager_settings_)
     , db_(new utils::dbms::SQLDatabase(kDatabaseName)) {
 #ifndef __QNX__
-  std::string path = application_manager_.get_settings().app_storage_folder();
+  std::string path = application_manager_settings_.app_storage_folder();
   if (!path.empty()) {
     db_->set_path(path + "/");
   }
@@ -73,11 +73,11 @@ bool ResumptionDataDB::Init() {
     LOG4CXX_ERROR(logger_, "Failed opening database.");
     LOG4CXX_INFO(logger_, "Starting opening retries.");
     const uint16_t attempts =
-        application_manager_.get_settings().attempts_to_open_resumption_db();
+        application_manager_settings_.attempts_to_open_resumption_db();
     LOG4CXX_DEBUG(logger_, "Total attempts number is: " << attempts);
     bool is_opened = false;
     const uint16_t open_attempt_timeout_ms =
-        application_manager_.get_settings()
+        application_manager_settings_
             .open_attempt_timeout_ms_resumption_db();
     const useconds_t sleep_interval_mcsec = open_attempt_timeout_ms * 1000;
     LOG4CXX_DEBUG(logger_,

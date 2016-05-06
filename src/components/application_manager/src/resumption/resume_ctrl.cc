@@ -79,7 +79,8 @@ void ResumeCtrl::set_resumption_storage(
 bool ResumeCtrl::Init(resumption::LastState& last_state) {
   bool use_db = application_manager_.get_settings().use_db_for_resumption();
   if (use_db) {
-    resumption_storage_.reset(new ResumptionDataDB(application_manager_));
+    resumption_storage_.reset(
+        new ResumptionDataDB(application_manager_.get_settings()));
     if (!resumption_storage_->Init()) {
       return false;
     }
@@ -103,8 +104,8 @@ bool ResumeCtrl::Init(resumption::LastState& last_state) {
       db->UpdateDBVersion();
     }
   } else {
-    resumption_storage_.reset(
-        new ResumptionDataJson(last_state, application_manager_));
+    resumption_storage_.reset(new ResumptionDataJson(
+        last_state, application_manager_.get_settings()));
     if (!resumption_storage_->Init()) {
       LOG4CXX_DEBUG(logger_, "Resumption storage initialisation failed");
       return false;
