@@ -37,6 +37,9 @@
 #include "application_manager/application_manager.h"
 #include "application_manager/message_helper.h"
 #include "smart_objects/smart_object.h"
+CREATE_LOGGERPTR_GLOBAL(logger_, "ApplicationManager")
+
+
 namespace application_manager {
 
 namespace commands {
@@ -197,8 +200,11 @@ bool CommandRequestImpl::CheckSyntax(const std::string& str,
 smart_objects::SmartObject CreateUnsupportedResourceResponse(
     const hmi_apis::FunctionID::eType function_id,
     const uint32_t hmi_correlation_id) {
-  smart_objects::SmartObject response;
+  LOG4CXX_AUTO_TRACE(logger_);
+  smart_objects::SmartObject response(smart_objects::SmartType_Map);
   smart_objects::SmartObject& params = response[strings::params];
+  smart_objects::SmartObject& msg_params = response[strings::msg_params];
+  UNUSED(msg_params);
   params[strings::message_type] = MessageType::kResponse;
   params[strings::correlation_id] = hmi_correlation_id;
   params[strings::protocol_type] =
@@ -214,6 +220,7 @@ smart_objects::SmartObject CreateUnsupportedResourceResponse(
 bool CommandRequestImpl::ProcessHMIInterfacesAvailability(
     const uint32_t hmi_correlation_id,
     const hmi_apis::FunctionID::eType& function_id) {
+  LOG4CXX_AUTO_TRACE(logger_);
   HmiInterfaces& hmi_interfaces = application_manager_.hmi_interfaces();
   HmiInterfaces::InterfaceID interface =
       hmi_interfaces.GetInterfaceFromFunction(function_id);
@@ -263,6 +270,8 @@ uint32_t CommandRequestImpl::SendHMIRequest(
       LOG4CXX_ERROR(logger_, "Unable to send request");
       SendResponse(false, mobile_apis::Result::OUT_OF_MEMORY);
     }
+  } else {
+       LOG4CXX_DEBUG(logger_, "Interface is not available");
   }
   return hmi_correlation_id;
 }

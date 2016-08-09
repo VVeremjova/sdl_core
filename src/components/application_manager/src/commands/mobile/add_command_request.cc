@@ -323,6 +323,7 @@ void AddCommandRequest::on_event(const event_engine::Event& event) {
     case hmi_apis::FunctionID::VR_AddCommand: {
       LOG4CXX_INFO(logger_, "Received VR_AddCommand event");
       is_vr_received_ = true;
+      MessageHelper::PrintSmartObject(message);
       vr_result_ = static_cast<hmi_apis::Common_Result::eType>(
           message[strings::params][hmi_response::code].asInt());
 
