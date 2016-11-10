@@ -585,7 +585,7 @@ class CodeGenerator(object):
 
         return result
 
-    def _gen_schema_items_decls(self, members):
+    def _gen_schema_items_decls(self, members, function_type = None):
         """Generate schema items declarations.
 
         Generates declaration and initialization of schema items
@@ -600,11 +600,11 @@ class CodeGenerator(object):
         """
 
         result = u"\n\n".join(
-            [self._gen_schema_item_decl(x) for x in members])
+            [self._gen_schema_item_decl(x, function_type) for x in members])
 
         return u"".join([result, u"\n\n"]) if result else u""
 
-    def _gen_schema_item_decl(self, member):
+    def _gen_schema_item_decl(self, member, function_type):
         """Generate schema item declaration.
 
         Generates declaration and initialization of schema item
@@ -624,9 +624,10 @@ class CodeGenerator(object):
             item_decl=self._gen_schema_item_decl_code(
                 member.param_type,
                 member.name,
-                member.default_value))
+                member.default_value,
+                function_type))
 
-    def _gen_schema_item_decl_code(self, param, member_name, default_value):
+    def _gen_schema_item_decl_code(self, param, member_name, default_value, function_type=None):
 
         """Generate schema item initialization code.
 
@@ -672,13 +673,22 @@ class CodeGenerator(object):
                      [u"double", param.max_value],
                      [u"double", param.default_value]]))
         elif type(param) is Model.String:
-            code = self._impl_code_string_item_template.substitute(
-                params=self._gen_schema_item_param_values(
-                    [[u"size_t", param.min_length],
-                     [u"size_t", param.max_length],
-                     [u"std::string", u"".join(
-                     [u'"', param.default_value, u'"']) if param.default_value
-                         is not None else u""]]))
+            if function_type=='response': 
+                code = self._impl_code_cutted_string_item_template.substitute(
+                    params=self._gen_schema_item_param_values(
+                        [[u"size_t", param.min_length],
+                         [u"size_t", param.max_length],
+                         [u"std::string", u"".join(
+                         [u'"', param.default_value, u'"']) if param.default_value
+                             is not None else u""]]))
+            else:
+                code = self._impl_code_string_item_template.substitute(
+                    params=self._gen_schema_item_param_values(
+                        [[u"size_t", param.min_length],
+                         [u"size_t", param.max_length],
+                         [u"std::string", u"".join(
+                         [u'"', param.default_value, u'"']) if param.default_value
+                             is not None else u""]]))
         elif type(param) is Model.Array:
             code = self._impl_code_array_item_template.substitute(
                 params=u"".join(
@@ -897,7 +907,8 @@ class CodeGenerator(object):
                     schema_loc_decl=self._gen_schema_loc_decls(
                         function.params.values(), processed_enums),
                     schema_items_decl=self._gen_schema_items_decls(
-                        function.params.values()),
+                        function.params.values(), #NEW CHANGES - new parameter for correct processing cutted strings in response
+                        function.message_type.primary_name),
                     schema_item_fill=self._gen_schema_items_fill(
                         function.params.values()),
                     schema_params_fill=self._gen_schema_params_fill(
@@ -1364,6 +1375,7 @@ class CodeGenerator(object):
         u'''#include "smart_objects/bool_schema_item.h"\n'''
         u'''#include "smart_objects/object_schema_item.h"\n'''
         u'''#include "smart_objects/string_schema_item.h"\n'''
+        u'''#include "smart_objects/cutted_string_schema_item.h"\n'''
         u'''#include "smart_objects/enum_schema_item.h"\n'''
         u'''#include "smart_objects/number_schema_item.h"\n'''
         u'''#include "smart_objects/schema_item_parameter.h"\n'''
@@ -1514,6 +1526,9 @@ class CodeGenerator(object):
 
     _impl_code_string_item_template = string.Template(
         u'''CStringSchemaItem::create(${params})''')
+
+    _impl_code_cutted_string_item_template = string.Template(
+        u'''CCuttedStringSchemaItem::create(${params})''')
 
     _impl_code_array_item_template = string.Template(
         u'''CArraySchemaItem::create(${params})''')
