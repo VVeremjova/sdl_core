@@ -1424,6 +1424,7 @@ void ApplicationManagerImpl::SendMessageToMobile(
               (*message)[strings::msg_params][strings::request_type].asUInt());
       if (mobile_apis::RequestType::PROPRIETARY == request_type ||
           mobile_apis::RequestType::HTTP == request_type) {
+        LOG4CXX_DEBUG(logger_, "before OnUpdateRequestSentToMobile");
         GetPolicyHandler().OnUpdateRequestSentToMobile();
       }
     }

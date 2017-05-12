@@ -1394,6 +1394,7 @@ void PolicyHandler::OnSnapshotCreated(const BinaryMessage& pt_string) {
   current_url++;
 #endif  // PROPRIETARY_MODE
   // reset update required false
+  LOG4CXX_DEBUG(logger_, "before OnUpdateRequestSentToMobile");
   OnUpdateRequestSentToMobile();
 }
 #endif  // EXTERNAL_PROPRIETARY_MODE
