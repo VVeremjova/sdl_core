@@ -88,18 +88,18 @@ void UpdateStatusManager::OnUpdateTimeoutOccurs() {
   LOG4CXX_AUTO_TRACE(logger_);
   ProcessEvent(kOnUpdateTimeout);
   DCHECK(update_status_thread_delegate_);
-  update_status_thread_delegate_->updateTimeOut(0);  // Stop Timer
+  //  update_status_thread_delegate_->updateTimeOut(0);  // Stop Timer
 }
 
 void UpdateStatusManager::OnValidUpdateReceived() {
   LOG4CXX_AUTO_TRACE(logger_);
-  update_status_thread_delegate_->updateTimeOut(0);  // Stop Timer
+  //  update_status_thread_delegate_->updateTimeOut(0);  // Stop Timer
   ProcessEvent(kOnValidUpdateReceived);
 }
 
 void UpdateStatusManager::OnWrongUpdateReceived() {
   LOG4CXX_AUTO_TRACE(logger_);
-  update_status_thread_delegate_->updateTimeOut(0);  // Stop Timer
+  //  update_status_thread_delegate_->updateTimeOut(0);  // Stop Timer
   ProcessEvent(kOnWrongUpdateReceived);
 }
 
@@ -212,43 +212,23 @@ UpdateStatusManager::UpdateThreadDelegate::~UpdateThreadDelegate() {
 
 void UpdateStatusManager::UpdateThreadDelegate::threadMain() {
   LOG4CXX_AUTO_TRACE(logger_);
-  //  LOG4CXX_DEBUG(logger_, "UpdateStatusManager thread started (started
-  //  normal)");
-  //  sync_primitives::AutoLock auto_lock(state_lock_);
-  //  while (false == stop_flag_) {
-  //    if (timeout_ > 0) {
-  //      LOG4CXX_DEBUG(logger_, "Timeout is greater then 0, and = "<<
-  //      timeout_);
-  //      sync_primitives::ConditionalVariable::WaitStatus wait_status =
-  //          termination_condition_.WaitFor(auto_lock, timeout_);
-  //      if (sync_primitives::ConditionalVariable::kTimeout == wait_status) {
-  //        if (update_status_manager_) {
-  ////          update_status_manager_->OnUpdateTimeoutOccurs();
-  //        }
-  //      }
-  //    } else {
-  //      // Time is not active, wait until timeout will be set,
-  //      // or UpdateStatusManager will be deleted
-  //      termination_condition_.Wait(auto_lock);
-  //    }
-  //  }
 }
 
 void UpdateStatusManager::UpdateThreadDelegate::exitThreadMain() {
   LOG4CXX_AUTO_TRACE(logger_);
-  sync_primitives::AutoLock auto_lock(state_lock_);
-  stop_flag_ = true;
-  LOG4CXX_DEBUG(logger_, "before notify");
-  termination_condition_.NotifyOne();
+  //  sync_primitives::AutoLock auto_lock(state_lock_);
+  //  stop_flag_ = true;
+  //  LOG4CXX_DEBUG(logger_, "before notify");
+  //  termination_condition_.NotifyOne();
 }
 
 void UpdateStatusManager::UpdateThreadDelegate::updateTimeOut(
     const uint32_t timeout_ms) {
   LOG4CXX_AUTO_TRACE(logger_);
-  sync_primitives::AutoLock auto_lock(state_lock_);
-  timeout_ = timeout_ms;
-  LOG4CXX_DEBUG(logger_, "new timeout is " << timeout_);
-  termination_condition_.NotifyOne();
+  //  sync_primitives::AutoLock auto_lock(state_lock_);
+  //  timeout_ = timeout_ms;
+  //  LOG4CXX_DEBUG(logger_, "new timeout is " << timeout_);
+  //  termination_condition_.NotifyOne();
 }
 
 }  // namespace policy
